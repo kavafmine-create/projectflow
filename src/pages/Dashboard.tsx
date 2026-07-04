@@ -6,9 +6,11 @@ import {
   AlertIcon,
   CheckCircleIcon,
 } from '../components/icons'
-import { dashboardStats, recentProjects } from '../data/mockData'
+import { dashboardStats } from '../data/mockData'
+import { getProjects } from '../services/projectStorage'
 
 export function Dashboard() {
+  const recentProjects = getProjects()
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <div>

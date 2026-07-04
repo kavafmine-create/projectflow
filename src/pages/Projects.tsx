@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import type { NewProjectFormData, Project, ProjectPriority, ProjectStatus } from '../types'
-import { initialProjects } from '../data/mockData'
+import { getProjects, saveProjects } from '../services/projectStorage'
 import { PlusIcon, XIcon } from '../components/icons'
 
 const statusLabels: Record<ProjectStatus, string> = {
@@ -245,20 +245,12 @@ function NewProjectModal({ isOpen, onClose, onSubmit }: NewProjectModalProps) {
 }
 
 export function Projects() {
-  const STORAGE_KEY = 'projectflow_projects'
+  const [projects, setProjects] = useState<Project[]>(() => getProjects())
 
-  const [projects, setProjects] = useState<Project[]>(() => {
-    const savedProjects = localStorage.getItem(STORAGE_KEY)
-  
-    if (savedProjects) {
-      return JSON.parse(savedProjects) as Project[]
-    }
-  
-    return initialProjects
-  })
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(projects))
-  }, [projects])
+useEffect(() => {
+  saveProjects(projects)
+}, [projects])
+
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   function handleAddProject(data: NewProjectFormData) {

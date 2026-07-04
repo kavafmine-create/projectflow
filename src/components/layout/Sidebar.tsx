@@ -1,4 +1,4 @@
-import type { NavItem } from '../../types'
+import type { NavItem, PageId } from '../../types'
 import {
   LayoutDashboardIcon,
   FolderIcon,
@@ -8,8 +8,8 @@ import {
   XIcon,
 } from '../icons'
 
-const navItems: NavItem[] = [
-  { id: 'dashboard', label: 'Dashboard', href: '#', icon: <LayoutDashboardIcon className="h-5 w-5" />, active: true },
+const navItems: Omit<NavItem, 'active'>[] = [
+  { id: 'dashboard', label: 'Dashboard', href: '#', icon: <LayoutDashboardIcon className="h-5 w-5" /> },
   { id: 'projects', label: 'Projeler', href: '#', icon: <FolderIcon className="h-5 w-5" /> },
   { id: 'tasks', label: 'Görevler', href: '#', icon: <CheckSquareIcon className="h-5 w-5" /> },
   { id: 'calendar', label: 'Takvim', href: '#', icon: <CalendarIcon className="h-5 w-5" /> },
@@ -18,10 +18,17 @@ const navItems: NavItem[] = [
 
 type SidebarProps = {
   isOpen: boolean
+  activePage: PageId
+  onNavigate: (page: PageId) => void
   onClose: () => void
 }
 
-export function Sidebar({ isOpen, onClose }: SidebarProps) {
+export function Sidebar({ isOpen, activePage, onNavigate, onClose }: SidebarProps) {
+  function handleNavClick(page: PageId) {
+    onNavigate(page)
+    onClose()
+  }
+
   return (
     <>
       {isOpen && (
@@ -58,23 +65,32 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         </div>
 
         <nav className="flex-1 space-y-1 px-3 py-4">
-          {navItems.map((item) => (
-            <a
-              key={item.id}
-              href={item.href}
-              className={`
-                flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors
-                ${item.active
-                  ? 'bg-indigo-50 text-indigo-700'
-                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}
-              `}
-            >
-              <span className={item.active ? 'text-indigo-600' : 'text-gray-400'}>
-                {item.icon}
-              </span>
-              {item.label}
-            </a>
-          ))}
+          {navItems.map((item) => {
+            const isActive = activePage === item.id
+            const isNavigable = item.id === 'dashboard' || item.id === 'projects'
+
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => isNavigable && handleNavClick(item.id as PageId)}
+                disabled={!isNavigable}
+                className={`
+                  flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium transition-colors
+                  ${isActive
+                    ? 'bg-indigo-50 text-indigo-700'
+                    : isNavigable
+                      ? 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                      : 'cursor-not-allowed text-gray-400'}
+                `}
+              >
+                <span className={isActive ? 'text-indigo-600' : isNavigable ? 'text-gray-400' : 'text-gray-300'}>
+                  {item.icon}
+                </span>
+                {item.label}
+              </button>
+            )
+          })}
         </nav>
 
         <div className="border-t border-gray-200 p-4">

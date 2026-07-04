@@ -80,7 +80,7 @@ export function RecentProjectsTable({ projects }: RecentProjectsTableProps) {
                   </div>
                 </td>
                 <td className="hidden whitespace-nowrap px-5 py-4 text-sm text-gray-500 sm:table-cell">
-                  {formatDate(project.dueDate)}
+                  {formatDate(project.endDate)}
                 </td>
                 <td className="hidden whitespace-nowrap px-5 py-4 text-sm text-gray-500 md:table-cell">
                   {project.team}

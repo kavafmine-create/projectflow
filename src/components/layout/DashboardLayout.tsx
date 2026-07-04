@@ -1,17 +1,25 @@
 import { useState, type ReactNode } from 'react'
+import type { PageId } from '../../types'
 import { Header } from './Header'
 import { Sidebar } from './Sidebar'
 
 type DashboardLayoutProps = {
   children: ReactNode
+  activePage: PageId
+  onNavigate: (page: PageId) => void
 }
 
-export function DashboardLayout({ children }: DashboardLayoutProps) {
+export function DashboardLayout({ children, activePage, onNavigate }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <Sidebar
+        isOpen={sidebarOpen}
+        activePage={activePage}
+        onNavigate={onNavigate}
+        onClose={() => setSidebarOpen(false)}
+      />
 
       <div className="flex flex-1 flex-col overflow-hidden">
         <Header onMenuClick={() => setSidebarOpen(true)} />

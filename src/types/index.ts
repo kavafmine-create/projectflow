@@ -33,6 +33,32 @@ export interface NewProjectFormData {
   team: string
 }
 
+export type TaskStatus = 'todo' | 'in_progress' | 'review' | 'completed'
+
+export type TaskPriority = 'low' | 'medium' | 'high' | 'critical'
+
+export interface Task {
+  id: string
+  projectId: string
+  title: string
+  description: string
+  status: TaskStatus
+  priority: TaskPriority
+  assignee: string
+  dueDate: string
+  createdAt: string
+}
+
+export interface NewTaskFormData {
+  projectId: string
+  title: string
+  description: string
+  priority: TaskPriority
+  assignee: string
+  dueDate: string
+}
+
+
 export interface NavItem {
   id: PageId
   label: string

@@ -67,7 +67,8 @@ export function Sidebar({ isOpen, activePage, onNavigate, onClose }: SidebarProp
         <nav className="flex-1 space-y-1 px-3 py-4">
           {navItems.map((item) => {
             const isActive = activePage === item.id
-            const isNavigable = item.id === 'dashboard' || item.id === 'projects'
+            const isNavigable = item.id === 'dashboard' || item.id === 'projects' || item.id === 'tasks' ||
+  item.id === 'calendar'
 
             return (
               <button

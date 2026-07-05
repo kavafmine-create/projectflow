@@ -6,11 +6,22 @@ import {
   AlertIcon,
   CheckCircleIcon,
 } from '../components/icons'
-import { dashboardStats } from '../data/mockData'
+import { getTasks } from '../services/taskStorage'
 import { getProjects } from '../services/projectStorage'
 
 export function Dashboard() {
   const recentProjects = getProjects()
+  const tasks = getTasks()
+const today = new Date().toISOString().split('T')[0]
+
+const stats = {
+  totalProjects: recentProjects.length,
+  activeTasks: tasks.filter((task) => task.status !== 'completed').length,
+  overdueTasks: tasks.filter(
+    (task) => task.status !== 'completed' && task.dueDate < today
+  ).length,
+  completedWork: tasks.filter((task) => task.status === 'completed').length,
+}
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <div>
@@ -23,28 +34,28 @@ export function Dashboard() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           title="Toplam Proje"
-          value={dashboardStats.totalProjects}
+          value={stats.totalProjects}
           icon={<BriefcaseIcon className="h-6 w-6" />}
           iconBg="bg-indigo-50"
           iconColor="text-indigo-600"
         />
         <StatCard
           title="Aktif Görev"
-          value={dashboardStats.activeTasks}
+          value={stats.activeTasks}
           icon={<ClipboardIcon className="h-6 w-6" />}
           iconBg="bg-blue-50"
           iconColor="text-blue-600"
         />
         <StatCard
           title="Geciken Görev"
-          value={dashboardStats.overdueTasks}
+          value={stats.overdueTasks}
           icon={<AlertIcon className="h-6 w-6" />}
           iconBg="bg-red-50"
           iconColor="text-red-600"
         />
         <StatCard
           title="Tamamlanan İş"
-          value={dashboardStats.completedWork}
+          value={stats.completedWork}
           icon={<CheckCircleIcon className="h-6 w-6" />}
           iconBg="bg-green-50"
           iconColor="text-green-600"

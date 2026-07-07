@@ -9,10 +9,29 @@ import {
 import { getTasks } from '../services/taskStorage'
 import { getProjects } from '../services/projectStorage'
 
+
 export function Dashboard() {
-  const recentProjects = getProjects()
+  const recentProjects = getProjects().slice(0, 5)
   const tasks = getTasks()
+
 const today = new Date().toISOString().split('T')[0]
+
+const totalProjects = recentProjects.length
+
+const activeTasks = tasks.filter(
+  (task) => task.status !== 'completed'
+).length
+
+const overdueTasks = tasks.filter(
+  (task) =>
+    task.status !== 'completed' &&
+    task.dueDate < today
+).length
+
+const completedWork = tasks.filter(
+  (task) => task.status === 'completed'
+).length
+ 
 
 const stats = {
   totalProjects: recentProjects.length,

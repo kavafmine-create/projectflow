@@ -7,6 +7,7 @@ import {
   SettingsIcon,
   XIcon,
 } from '../icons'
+import { getSettings } from '../../services/settingsStorage'
 
 const navItems: Omit<NavItem, 'active'>[] = [
   { id: 'dashboard', label: 'Dashboard', href: '#', icon: <LayoutDashboardIcon className="h-5 w-5" /> },
@@ -24,6 +25,7 @@ type SidebarProps = {
 }
 
 export function Sidebar({ isOpen, activePage, onNavigate, onClose }: SidebarProps) {
+  const settings = getSettings()
   function handleNavClick(page: PageId) {
     onNavigate(page)
     onClose()
@@ -52,7 +54,7 @@ export function Sidebar({ isOpen, activePage, onNavigate, onClose }: SidebarProp
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600">
               <span className="text-sm font-bold text-white">PF</span>
             </div>
-            <span className="text-lg font-semibold text-gray-900">ProjectFlow</span>
+            <span className="text-lg font-semibold text-gray-900">{settings.appName}</span>
           </div>
           <button
             type="button"
@@ -68,7 +70,7 @@ export function Sidebar({ isOpen, activePage, onNavigate, onClose }: SidebarProp
           {navItems.map((item) => {
             const isActive = activePage === item.id
             const isNavigable = item.id === 'dashboard' || item.id === 'projects' || item.id === 'tasks' ||
-  item.id === 'calendar'
+            item.id === 'calendar' ||item.id === 'settings'
 
             return (
               <button

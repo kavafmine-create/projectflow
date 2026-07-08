@@ -58,7 +58,11 @@ export interface NewTaskFormData {
   dueDate: string
 }
 
-
+export interface AppSettings {
+  appName: string
+  userName: string
+  defaultView: 'dashboard' | 'projects' | 'tasks' | 'calendar'
+}
 export interface NavItem {
   id: PageId
   label: string

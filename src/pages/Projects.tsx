@@ -74,12 +74,26 @@ function validateForm(data: NewProjectFormData): FormErrors {
 
 type NewProjectModalProps = {
   isOpen: boolean
+  project: Project | null
   onClose: () => void
   onSubmit: (data: NewProjectFormData) => void
 }
 
-function NewProjectModal({ isOpen, onClose, onSubmit }: NewProjectModalProps) {
+function NewProjectModal({ isOpen, project,onClose, onSubmit }: NewProjectModalProps) {
   const [form, setForm] = useState<NewProjectFormData>(emptyForm)
+  useEffect(() => {
+    if (project) {
+      setForm({
+        name: project.name,
+        description: project.description,
+        priority: project.priority,
+        endDate: project.endDate,
+        team: project.team,
+      })
+    } else {
+      setForm(emptyForm)
+    }
+  }, [project, isOpen])
   const [errors, setErrors] = useState<FormErrors>({})
 
   if (!isOpen) return null
@@ -133,8 +147,14 @@ function NewProjectModal({ isOpen, onClose, onSubmit }: NewProjectModalProps) {
       <div className="relative w-full max-w-lg rounded-xl bg-white shadow-xl">
         <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900">Yeni Proje</h2>
-            <p className="mt-0.5 text-sm text-gray-500">Proje bilgilerini doldurun</p>
+          <h2 className="text-lg font-semibold text-gray-900">
+  {project ? 'Projeyi Düzenle' : 'Yeni Proje'}
+</h2>
+<p className="mt-0.5 text-sm text-gray-500">
+  {project
+    ? 'Proje bilgilerini güncelleyin'
+    : 'Proje bilgilerini doldurun'}
+</p>
           </div>
           <button
             type="button"
@@ -235,7 +255,7 @@ function NewProjectModal({ isOpen, onClose, onSubmit }: NewProjectModalProps) {
               type="submit"
               className="rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
             >
-              Projeyi Kaydet
+              {project ? 'Değişiklikleri Kaydet' : 'Projeyi Kaydet'}
             </button>
           </div>
         </form>
@@ -252,10 +272,34 @@ useEffect(() => {
 }, [projects])
 
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [editingProjectId, setEditingProjectId] = useState<string | null>(null)
+  const editingProject =
+  projects.find((project) => project.id === editingProjectId) ?? null
 
   function handleAddProject(data: NewProjectFormData) {
+    if (editingProjectId) {
+      setProjects((currentProjects) =>
+        currentProjects.map((project) =>
+          project.id === editingProjectId
+            ? {
+                ...project,
+                name: data.name.trim(),
+                description: data.description.trim(),
+                priority: data.priority,
+                endDate: data.endDate,
+                team: data.team.trim(),
+              }
+            : project
+        )
+      )
+  
+      setEditingProjectId(null)
+      setIsModalOpen(false)
+      return
+    }
+  
     const today = new Date().toISOString().split('T')[0]
-
+  
     const newProject: Project = {
       id: generateId(),
       name: data.name.trim(),
@@ -267,11 +311,18 @@ useEffect(() => {
       endDate: data.endDate,
       team: data.team.trim(),
     }
-
-    setProjects((prev) => [newProject, ...prev])
+  
+    setProjects((currentProjects) => [
+      newProject,
+      ...currentProjects,
+    ])
+  
     setIsModalOpen(false)
   }
-
+  function handleEditProject(projectId: string) {
+    setEditingProjectId(projectId)
+    setIsModalOpen(true)
+  }
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -281,7 +332,10 @@ useEffect(() => {
         </div>
         <button
           type="button"
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => {
+            setEditingProjectId(null)
+            setIsModalOpen(true)
+          }}
           className="inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
         >
           <PlusIcon className="h-4 w-4" />
@@ -315,6 +369,9 @@ useEffect(() => {
                 <th className="hidden px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 xl:table-cell">
                   Ekip
                 </th>
+                <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  İşlemler
+                 </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 bg-white">
@@ -326,6 +383,25 @@ useEffect(() => {
                       <p className="mt-0.5 max-w-xs truncate text-xs text-gray-500 sm:hidden">
                         {project.team}
                       </p>
+                    </div>
+                  </td>
+                  <td className="whitespace-nowrap px-5 py-4">
+                  <div className="flex items-center gap-2 text-right">
+                    <button
+                      type="button"
+                      onClick={() => handleEditProject(project.id)}
+                      className="rounded-lg border border-indigo-200 px-3 py-1.5 text-sm font-medium text-indigo-600 hover:bg-indigo-50"
+                    >
+                    Düzenle
+                    </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteProject(project.id)}
+                        className="rounded-lg border border-red-200 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50"
+                      >
+                        Sil
+                      </button>
                     </div>
                   </td>
                   <td className="whitespace-nowrap px-5 py-4">
@@ -377,10 +453,14 @@ useEffect(() => {
       </div>
 
       <NewProjectModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSubmit={handleAddProject}
-      />
+  isOpen={isModalOpen}
+  project={editingProject}
+  onClose={() => {
+    setIsModalOpen(false)
+    setEditingProjectId(null)
+  }}
+  onSubmit={handleAddProject}
+/>
     </div>
   )
 }
